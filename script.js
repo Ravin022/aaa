@@ -195,6 +195,37 @@ function setupEventListeners() {
         document.getElementById('right-sidebar').classList.toggle('collapsed');
     });
 
+    // Mobile menu toggles
+    const mobileLeftToggle = document.getElementById('mobile-left-toggle');
+    const mobileRightToggle = document.getElementById('mobile-right-toggle');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebarLeft = document.querySelector('.sidebar-left');
+    const sidebarRight = document.getElementById('right-sidebar');
+
+    if (mobileLeftToggle) {
+        mobileLeftToggle.addEventListener('click', () => {
+            sidebarLeft.classList.toggle('open');
+            sidebarRight.classList.remove('open');
+            mobileOverlay.classList.toggle('active', sidebarLeft.classList.contains('open'));
+        });
+    }
+
+    if (mobileRightToggle) {
+        mobileRightToggle.addEventListener('click', () => {
+            sidebarRight.classList.toggle('open');
+            sidebarLeft.classList.remove('open');
+            mobileOverlay.classList.toggle('active', sidebarRight.classList.contains('open'));
+        });
+    }
+
+    if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', () => {
+            sidebarLeft.classList.remove('open');
+            sidebarRight.classList.remove('open');
+            mobileOverlay.classList.remove('active');
+        });
+    }
+
     // Character buttons
     document.getElementById('new-char-btn').addEventListener('click', () => openCharacterEditor());
     document.getElementById('import-char-btn').addEventListener('click', () => openModal('import-modal'));
@@ -691,6 +722,10 @@ function selectCharacter(characterId) {
     } else {
         state.currentChatId = chat.chat_id;
     }
+
+    // Close mobile sidebars when selecting a character
+    document.querySelector('.sidebar-left')?.classList.remove('open');
+    document.getElementById('mobile-overlay')?.classList.remove('active');
 
     saveState();
     renderCharacterList();

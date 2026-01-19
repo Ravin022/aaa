@@ -54,6 +54,64 @@ npx http-server
 - `Enter` - Send message
 - `Shift + Enter` - New line in message
 
+## Mobile Access
+
+The app is fully responsive and works on mobile devices. To access from your phone or tablet:
+
+### Option 1: Local Network (Same WiFi)
+
+1. Find your computer's local IP address:
+   ```bash
+   # On Linux/Mac
+   hostname -I
+   # or
+   ip addr show | grep "inet "
+
+   # On Windows
+   ipconfig
+   ```
+
+2. Start a local server on your computer:
+   ```bash
+   python -m http.server 8000
+   ```
+
+3. On your mobile device, open a browser and visit:
+   ```
+   http://YOUR_COMPUTER_IP:8000
+   ```
+   Example: `http://192.168.1.100:8000`
+
+### Option 2: Using ngrok (Access from Anywhere)
+
+1. Install ngrok from https://ngrok.com/download
+
+2. Start a local server:
+   ```bash
+   python -m http.server 8000
+   ```
+
+3. In another terminal, run:
+   ```bash
+   ngrok http 8000
+   ```
+
+4. Use the provided ngrok URL (e.g., `https://abc123.ngrok.io`) on any device
+
+### Option 3: Host on GitHub Pages (Free)
+
+1. Push your code to a GitHub repository
+2. Go to Settings > Pages
+3. Select your branch and save
+4. Access via `https://yourusername.github.io/repo-name`
+
+### Mobile Navigation
+
+On mobile devices:
+- Tap the **hamburger menu** (☰) on the left to open the character sidebar
+- Tap the **settings icon** on the right to open generation settings
+- Tap outside or on the overlay to close sidebars
+
 ## Technology
 
 - Pure HTML, CSS, and JavaScript (no frameworks)
