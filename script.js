@@ -1137,6 +1137,16 @@ function buildPromptMessages(chat, character, continueMsg = false) {
         systemContent += '\n\n' + charInfo.join('\n\n');
     }
 
+    // Add user persona info
+    if (state.userPersona.name || state.userPersona.description) {
+        let personaInfo = '\n\n[User Information]';
+        personaInfo += `\nThe user's name is: ${state.userPersona.name || 'User'}`;
+        if (state.userPersona.description) {
+            personaInfo += `\nUser description/persona: ${state.userPersona.description}`;
+        }
+        systemContent += personaInfo;
+    }
+
     // Add example messages
     if (d.mes_example && state.promptSettings.exampleMsgMode !== 'never') {
         if (state.promptSettings.exampleMsgMode === 'always' ||
