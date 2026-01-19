@@ -171,7 +171,7 @@
                                 <button class="reset-btn" data-param="max_tokens" title="Reset">↺</button>
                             </div>
                         </div>
-                        <input type="range" id="max-tokens" min="50" max="8192" step="1" value="2048">
+                        <input type="range" id="max-tokens" min="50" max="32000" step="50" value="2048">
                         <div class="param-hint">Maximum response length in tokens.</div>
                     </div>
 
@@ -262,7 +262,7 @@
                                 <button class="reset-btn" data-param="context_size" title="Reset">↺</button>
                             </div>
                         </div>
-                        <input type="range" id="context-size" min="512" max="32000" step="256" value="4096">
+                        <input type="range" id="context-size" min="512" max="200000" step="512" value="4096">
                         <div class="param-hint">Max tokens of history to include.</div>
                     </div>
 
