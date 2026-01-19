@@ -4,9 +4,9 @@
 // ============================================
 
 // === CONFIGURATION ===
-const CONFIG = {
-    OPENROUTER_API_KEY: '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',
-    OPENROUTER_BASE_URL: 'https://openrouter.ai/api/v1',
+let CONFIG = {
+    OPENROUTER_API_KEY: localStorage.getItem('openrouter_api_key') || '',
+    OPENROUTER_BASE_URL: localStorage.getItem('openrouter_base_url') || 'https://openrouter.ai/api/v1',
     DEFAULT_MODEL: 'meta-llama/llama-3.2-3b-instruct:free'
 };
 
@@ -491,6 +491,58 @@ function setupSettingsListeners() {
     });
     document.getElementById('backup-file-input')?.addEventListener('change', importBackup);
     document.getElementById('clear-all-data-btn')?.addEventListener('click', clearAllData);
+
+    // API Settings
+    const apiKeyInput = document.getElementById('api-key-input');
+    const apiBaseUrl = document.getElementById('api-base-url');
+
+    // Load current API settings into inputs
+    if (apiKeyInput) apiKeyInput.value = CONFIG.OPENROUTER_API_KEY;
+    if (apiBaseUrl) apiBaseUrl.value = CONFIG.OPENROUTER_BASE_URL;
+
+    document.getElementById('save-api-settings-btn')?.addEventListener('click', () => {
+        const newKey = document.getElementById('api-key-input').value.trim();
+        const newUrl = document.getElementById('api-base-url').value.trim();
+
+        CONFIG.OPENROUTER_API_KEY = newKey;
+        CONFIG.OPENROUTER_BASE_URL = newUrl || 'https://openrouter.ai/api/v1';
+
+        localStorage.setItem('openrouter_api_key', CONFIG.OPENROUTER_API_KEY);
+        localStorage.setItem('openrouter_base_url', CONFIG.OPENROUTER_BASE_URL);
+
+        const resultDiv = document.getElementById('api-test-result');
+        resultDiv.textContent = 'API settings saved!';
+        resultDiv.className = 'api-test-result success';
+
+        // Reload models with new API key
+        loadModels();
+    });
+
+    document.getElementById('test-api-btn')?.addEventListener('click', async () => {
+        const resultDiv = document.getElementById('api-test-result');
+        resultDiv.textContent = 'Testing connection...';
+        resultDiv.className = 'api-test-result';
+
+        try {
+            const response = await fetch(`${CONFIG.OPENROUTER_BASE_URL}/models`, {
+                headers: { 'Authorization': `Bearer ${CONFIG.OPENROUTER_API_KEY}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const freeModels = data.data?.filter(m => m.pricing?.prompt === '0' || m.id.includes(':free')).length || 0;
+                resultDiv.textContent = `✓ Connection successful! Found ${freeModels} free models.`;
+                resultDiv.className = 'api-test-result success';
+            } else {
+                const error = await response.json();
+                resultDiv.textContent = `✗ Error: ${error.error?.message || response.statusText}`;
+                resultDiv.className = 'api-test-result error';
+            }
+        } catch (e) {
+            resultDiv.textContent = `✗ Connection failed: ${e.message}`;
+            resultDiv.className = 'api-test-result error';
+        }
+    });
 }
 
 function setupPersonaListeners() {
@@ -823,12 +875,20 @@ function createNewChat() {
 
     // Add first message if character has one
     if (character?.data.first_mes) {
+        // Build swipes array with first message and all alternate greetings
+        const allGreetings = [replaceMacros(character.data.first_mes, character)];
+        if (character.data.alternate_greetings?.length > 0) {
+            character.data.alternate_greetings.forEach(greeting => {
+                allGreetings.push(replaceMacros(greeting, character));
+            });
+        }
+
         chat.messages.push({
             id: generateId(),
             role: 'assistant',
-            content: replaceMacros(character.data.first_mes, character),
+            content: allGreetings[0],
             timestamp: new Date().toISOString(),
-            swipes: [replaceMacros(character.data.first_mes, character)],
+            swipes: allGreetings,
             current_swipe_index: 0
         });
     }
@@ -1063,6 +1123,13 @@ async function sendMessage() {
     const message = input.value.trim();
 
     if (!message || state.isGenerating) return;
+
+    if (!CONFIG.OPENROUTER_API_KEY) {
+        alert('Please set your OpenRouter API key in Settings > API Settings first.');
+        openModal('settings-modal');
+        return;
+    }
+
     if (!state.currentCharacterId || !state.selectedModel) {
         alert('Please select a character and model first.');
         return;
@@ -1231,8 +1298,11 @@ async function streamResponse(messages, typingId, continueMsg) {
             temperature: state.generationSettings.temperature,
             max_tokens: state.generationSettings.max_tokens,
             top_p: state.generationSettings.top_p,
+            top_k: state.generationSettings.top_k > 0 ? state.generationSettings.top_k : undefined,
+            min_p: state.generationSettings.min_p > 0 ? state.generationSettings.min_p : undefined,
             frequency_penalty: state.generationSettings.frequency_penalty,
             presence_penalty: state.generationSettings.presence_penalty,
+            repetition_penalty: state.generationSettings.repetition_penalty !== 1.0 ? state.generationSettings.repetition_penalty : undefined,
             stop: state.generationSettings.stop_sequences.length > 0 ? state.generationSettings.stop_sequences : undefined
         }),
         signal: state.abortController.signal
@@ -1323,8 +1393,11 @@ async function nonStreamResponse(messages, typingId, continueMsg) {
             temperature: state.generationSettings.temperature,
             max_tokens: state.generationSettings.max_tokens,
             top_p: state.generationSettings.top_p,
+            top_k: state.generationSettings.top_k > 0 ? state.generationSettings.top_k : undefined,
+            min_p: state.generationSettings.min_p > 0 ? state.generationSettings.min_p : undefined,
             frequency_penalty: state.generationSettings.frequency_penalty,
             presence_penalty: state.generationSettings.presence_penalty,
+            repetition_penalty: state.generationSettings.repetition_penalty !== 1.0 ? state.generationSettings.repetition_penalty : undefined,
             stop: state.generationSettings.stop_sequences.length > 0 ? state.generationSettings.stop_sequences : undefined
         }),
         signal: state.abortController.signal

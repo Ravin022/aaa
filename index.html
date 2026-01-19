@@ -631,12 +631,29 @@
             </div>
             <div class="modal-body">
                 <div class="settings-tabs">
-                    <button class="settings-tab active" data-settings-tab="ui">UI Settings</button>
+                    <button class="settings-tab active" data-settings-tab="api">API Settings</button>
+                    <button class="settings-tab" data-settings-tab="ui">UI Settings</button>
                     <button class="settings-tab" data-settings-tab="presets">Presets</button>
                     <button class="settings-tab" data-settings-tab="data">Data Management</button>
                 </div>
 
-                <div class="settings-tab-content active" id="settings-tab-ui">
+                <div class="settings-tab-content active" id="settings-tab-api">
+                    <div class="form-group">
+                        <label>OpenRouter API Key</label>
+                        <input type="password" id="api-key-input" placeholder="sk-or-v1-...">
+                        <p class="hint">Get your free API key from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></p>
+                    </div>
+                    <div class="form-group">
+                        <label>API Base URL</label>
+                        <input type="text" id="api-base-url" value="https://openrouter.ai/api/v1">
+                        <p class="hint">Default: https://openrouter.ai/api/v1</p>
+                    </div>
+                    <button id="save-api-settings-btn" class="primary-btn">Save API Settings</button>
+                    <button id="test-api-btn" class="secondary-btn">Test Connection</button>
+                    <div id="api-test-result" class="api-test-result"></div>
+                </div>
+
+                <div class="settings-tab-content" id="settings-tab-ui">
                     <div class="form-group">
                         <label>Theme</label>
                         <select id="theme-select">
