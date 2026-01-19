@@ -84,6 +84,22 @@ let state = {
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+    // Detect iOS Safari for special styling
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) {
+        document.body.classList.add('ios-device');
+    }
+
+    // Handle iOS Safari viewport resize (toolbar show/hide)
+    if (isIOS) {
+        const setViewportHeight = () => {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        };
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+    }
+
     loadState();
     applyUISettings();
     await loadModels();

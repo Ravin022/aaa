@@ -1736,7 +1736,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
     .chat-input-container {
         padding: 8px 12px 12px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        /* Extra padding for iOS Safari toolbar + safe area */
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     }
 
     .input-hint {
@@ -1845,5 +1846,31 @@ input[type="range"]::-webkit-slider-thumb:hover {
     .settings-tab.active {
         border-bottom: none;
         border-left-color: var(--primary-color);
+    }
+}
+
+/* ===== iOS SAFARI SPECIFIC FIXES ===== */
+/* Use dynamic viewport height for iOS */
+body.ios-device {
+    height: calc(var(--vh, 1vh) * 100);
+}
+
+body.ios-device .app-container {
+    height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Extra bottom padding for iOS Safari toolbar */
+@media (max-width: 768px) {
+    body.ios-device .chat-input-container {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+
+    body.ios-device .chat-area {
+        padding-bottom: 0;
+    }
+
+    /* Ensure modals don't get cut off on iOS */
+    body.ios-device .modal-content {
+        max-height: calc(var(--vh, 1vh) * 85);
     }
 }
